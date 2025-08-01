@@ -223,7 +223,15 @@ export function ActiveDebate({ debate, onDebateComplete }: ActiveDebateProps) {
               </div>
             ) : (
               <div className="text-center text-slate-500 py-16">
-                Submit your argument to see the AI response
+                <div className="mb-4">
+                  <Bot className="h-12 w-12 mx-auto text-slate-300 mb-2" />
+                  <p>Submit your argument to see the AI response</p>
+                </div>
+                {!process.env.OPENAI_API_KEY && (
+                  <div className="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                    <p>⚠️ OpenAI API key required for AI features</p>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
