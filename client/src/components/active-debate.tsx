@@ -264,9 +264,9 @@ export function ActiveDebate({ debate, onDebateComplete }: ActiveDebateProps) {
               <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <h4 className="font-medium text-blue-900 mb-2">Suggestions for Improvement</h4>
                 <ul className="text-sm text-blue-700 space-y-1">
-                  {(userArguments[userArguments.length - 1].feedback as { suggestions?: string[] })?.suggestions?.map((suggestion: string, index: number) => (
+                  {((userArguments[userArguments.length - 1].feedback as { suggestions?: string[] })?.suggestions || []).map((suggestion: string, index: number) => (
                     <li key={index}>• {suggestion}</li>
-                  )) ?? []}
+                  ))}
                 </ul>
               </div>
             )}
