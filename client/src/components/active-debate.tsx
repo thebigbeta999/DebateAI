@@ -54,17 +54,30 @@ export function ActiveDebate({ debate, onDebateComplete }: ActiveDebateProps) {
       setCurrentArgument("");
       setIsAiThinking(false);
       
-      if (data.userArgument.strengthScore) {
-        setFeedback({
-          strength: data.userArgument.strengthScore,
-          logic: data.userArgument.logicScore || 0,
-          persuasiveness: data.userArgument.persuasivenessScore || 0,
+      // Handle errors from AI analysis
+      if (data.error) {
+        setAiResponse({
+          id: "error",
+          debateId: debate.id,
+          speaker: "ai",
+          content: `⚠️ ${data.error}`,
+          phase: currentPhase,
+          createdAt: new Date().toISOString(),
         });
-      }
-      
-      if (data.aiArgument) {
-        setAiResponse(data.aiArgument);
-        setAiStrategy(data.aiStrategy || "");
+        setAiStrategy("");
+      } else {
+        if (data.userArgument.strengthScore) {
+          setFeedback({
+            strength: data.userArgument.strengthScore,
+            logic: data.userArgument.logicScore || 0,
+            persuasiveness: data.userArgument.persuasivenessScore || 0,
+          });
+        }
+        
+        if (data.aiArgument) {
+          setAiResponse(data.aiArgument);
+          setAiStrategy(data.aiStrategy || "");
+        }
       }
 
       queryClient.invalidateQueries({

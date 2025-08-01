@@ -111,7 +111,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (analysisError) {
           // If AI analysis fails, still return the argument
           console.error("AI analysis failed:", analysisError);
-          res.json({ userArgument: argument, error: "AI analysis unavailable" });
+          const errorMessage = (analysisError as Error).message;
+          let userFriendlyError = "AI analysis unavailable";
+          
+          if (errorMessage.includes("quota") || errorMessage.includes("429")) {
+            userFriendlyError = "OpenAI API quota exceeded - please check your billing settings at platform.openai.com";
+          } else if (errorMessage.includes("401") || errorMessage.includes("API key")) {
+            userFriendlyError = "Invalid OpenAI API key";
+          }
+          
+          res.json({ userArgument: argument, error: userFriendlyError });
         }
       } else {
         res.json({ argument });
