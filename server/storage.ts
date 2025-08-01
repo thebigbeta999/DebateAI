@@ -130,6 +130,7 @@ export class MemStorage implements IStorage {
       oxford: { opening: 360, rebuttal: 240 },
       parliamentary: { opening: 420, rebuttal: 480 },
       "lincoln-douglas": { opening: 360, rebuttal: 180 },
+      "public-forum": { opening: 240, rebuttal: 180, summary: 120 },
     };
     return formatRules[format]?.[phase] || 360;
   }

@@ -37,6 +37,11 @@ const DEBATE_FORMATS = [
     name: "Lincoln-Douglas",
     description: "6 minute case, 3 minute cross-examination",
   },
+  {
+    id: "public-forum",
+    name: "Public Forum",
+    description: "4 minute constructive, 3 minute rebuttal, 2 minute summary",
+  },
 ];
 
 export function DebateSetup({ onStartDebate }: DebateSetupProps) {

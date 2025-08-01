@@ -84,6 +84,8 @@ export function ActiveDebate({ debate, onDebateComplete }: ActiveDebateProps) {
     // Move to next phase or complete debate
     if (currentPhase === "opening") {
       setCurrentPhase("rebuttal");
+    } else if (currentPhase === "rebuttal" && debate.format === "public-forum") {
+      setCurrentPhase("summary");
     } else {
       onDebateComplete();
     }
@@ -94,6 +96,7 @@ export function ActiveDebate({ debate, onDebateComplete }: ActiveDebateProps) {
       oxford: { opening: 360, rebuttal: 240 },
       parliamentary: { opening: 420, rebuttal: 480 },
       "lincoln-douglas": { opening: 360, rebuttal: 180 },
+      "public-forum": { opening: 240, rebuttal: 180, summary: 120 },
     };
     return formatRules[format]?.[phase] || 360;
   };

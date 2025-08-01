@@ -13,11 +13,11 @@ export const debates = pgTable("debates", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   topic: text("topic").notNull(),
-  format: text("format").notNull(), // oxford, parliamentary, lincoln-douglas
+  format: text("format").notNull(), // oxford, parliamentary, lincoln-douglas, public-forum
   userPosition: text("user_position").notNull(), // pro, con
   aiDifficulty: text("ai_difficulty").notNull(), // beginner, intermediate, advanced, expert
   status: text("status").notNull().default("active"), // setup, active, completed
-  currentPhase: text("current_phase").notNull().default("opening"), // opening, rebuttal, closing
+  currentPhase: text("current_phase").notNull().default("opening"), // opening, rebuttal, closing, summary
   timeRemaining: integer("time_remaining").notNull().default(360), // seconds
   realTimeFeedback: boolean("real_time_feedback").notNull().default(true),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
@@ -29,7 +29,7 @@ export const debateArguments = pgTable("arguments", {
   debateId: varchar("debate_id").references(() => debates.id),
   speaker: text("speaker").notNull(), // user, ai
   content: text("content").notNull(),
-  phase: text("phase").notNull(), // opening, rebuttal, closing
+  phase: text("phase").notNull(), // opening, rebuttal, closing, summary
   strengthScore: integer("strength_score"), // 1-10
   logicScore: integer("logic_score"), // 1-10
   persuasivenessScore: integer("persuasiveness_score"), // 1-10
