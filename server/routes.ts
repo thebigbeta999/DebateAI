@@ -112,15 +112,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // If AI analysis fails, still return the argument
           console.error("AI analysis failed:", analysisError);
           const errorMessage = (analysisError as Error).message;
-          let userFriendlyError = "AI analysis unavailable";
           
           if (errorMessage.includes("quota") || errorMessage.includes("429")) {
-            userFriendlyError = "OpenAI API quota exceeded - please check your billing settings at platform.openai.com";
+            // Enable demo mode when quota is exceeded
+            console.log("Switching to demo mode due to quota limits");
+            
+            try {
+              // Use demo analysis and AI argument generation
+              const analysis = await analyzeArgument(
+                data.content + " [DEMO_MODE]", // Add marker to trigger demo mode
+                debate.topic,
+                debate.userPosition,
+                debate.format
+              );
+
+              const updatedArgument = {
+                ...argument,
+                strengthScore: analysis.strengthScore,
+                logicScore: analysis.logicScore,
+                persuasivenessScore: analysis.persuasivenessScore,
+                feedback: analysis.feedback,
+              };
+
+              const aiPosition = debate.userPosition === "pro" ? "con" : "pro";
+              const aiResponse = await generateAIArgument(
+                debate.topic + " [DEMO_MODE]", // Add marker to trigger demo mode
+                aiPosition,
+                data.content,
+                debate.format,
+                debate.aiDifficulty,
+                data.phase
+              );
+
+              const aiArgument = await storage.createArgument({
+                debateId: data.debateId,
+                speaker: "ai",
+                content: aiResponse.content,
+                phase: data.phase,
+              });
+
+              res.json({
+                userArgument: updatedArgument,
+                aiArgument,
+                aiStrategy: aiResponse.strategy,
+                demoMode: true
+              });
+            } catch (demoError) {
+              res.json({ userArgument: argument, error: "Demo mode unavailable" });
+            }
           } else if (errorMessage.includes("401") || errorMessage.includes("API key")) {
-            userFriendlyError = "Invalid OpenAI API key";
+            res.json({ userArgument: argument, error: "Invalid OpenAI API key" });
+          } else {
+            res.json({ userArgument: argument, error: "AI analysis unavailable" });
           }
-          
-          res.json({ userArgument: argument, error: userFriendlyError });
         }
       } else {
         res.json({ argument });
