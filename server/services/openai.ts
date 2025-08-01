@@ -1,8 +1,13 @@
 import OpenAI from "openai";
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || "sk-invalid-key-please-set-openai-api-key" 
+// Configure OpenRouter or fallback to OpenAI
+const openai = new OpenAI({
+  baseURL: process.env.OPENROUTER_API_KEY ? "https://openrouter.ai/api/v1" : "https://api.openai.com/v1",
+  apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY || "sk-invalid-key-please-set-api-key",
+  defaultHeaders: process.env.OPENROUTER_API_KEY ? {
+    "HTTP-Referer": "https://replit.com",
+    "X-Title": "AI Debate Platform"
+  } : {}
 });
 
 export interface ArgumentAnalysis {
@@ -38,8 +43,9 @@ export async function analyzeArgument(
   position: string,
   format: string
 ): Promise<ArgumentAnalysis> {
-  // Check for demo mode trigger
-  if (argument.includes("[DEMO_MODE]") || topic.includes("[DEMO_MODE]")) {
+  // Check for demo mode trigger (only use demo if no API keys available)
+  if (argument.includes("[DEMO_MODE]") || topic.includes("[DEMO_MODE]") || 
+      (!process.env.OPENROUTER_API_KEY && !process.env.OPENAI_API_KEY)) {
     return generateDemoAnalysis(argument.replace(" [DEMO_MODE]", ""), position);
   }
   
@@ -63,8 +69,9 @@ Please respond with JSON in this exact format:
   }
 }`;
 
+    const model = process.env.OPENROUTER_API_KEY ? "openai/gpt-4o-mini" : "gpt-4o";
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model,
       messages: [
         {
           role: "system",
@@ -156,8 +163,9 @@ export async function generateAIArgument(
   difficulty: string,
   phase: string
 ): Promise<AIArgument> {
-  // Check for demo mode trigger
-  if (topic.includes("[DEMO_MODE]")) {
+  // Check for demo mode trigger (only use demo if no API keys available)
+  if (topic.includes("[DEMO_MODE]") || 
+      (!process.env.OPENROUTER_API_KEY && !process.env.OPENAI_API_KEY)) {
     return generateDemoAIArgument(topic.replace(" [DEMO_MODE]", ""), position, userArgument, difficulty, phase);
   }
   
@@ -183,8 +191,9 @@ Please generate a compelling counter-argument and explain your strategy. Respond
   "strategy": "brief explanation of your strategic approach"
 }`;
 
+    const model = process.env.OPENROUTER_API_KEY ? "openai/gpt-4o-mini" : "gpt-4o";
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model,
       messages: [
         {
           role: "system",
@@ -278,8 +287,9 @@ Please provide a comprehensive analysis with scores and feedback. Respond with J
   "improvements": ["improvement 1", "improvement 2", "improvement 3", "improvement 4"]
 }`;
 
+    const model = process.env.OPENROUTER_API_KEY ? "openai/gpt-4o-mini" : "gpt-4o";
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model,
       messages: [
         {
           role: "system",
