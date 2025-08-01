@@ -22,6 +22,22 @@ interface ArgumentResponse {
   error?: string;
 }
 
+function SuggestionsDisplay({ feedback }: { feedback: any }) {
+  const suggestions = feedback?.suggestions;
+  if (!Array.isArray(suggestions)) return null;
+  
+  return (
+    <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <h4 className="font-medium text-blue-900 mb-2">Suggestions for Improvement</h4>
+      <ul className="text-sm text-blue-700 space-y-1">
+        {suggestions.map((suggestion: string, index: number) => (
+          <li key={index}>• {suggestion}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function ActiveDebate({ debate, onDebateComplete }: ActiveDebateProps) {
   const [currentArgument, setCurrentArgument] = useState("");
   const [aiResponse, setAiResponse] = useState<Argument | null>(null);
@@ -62,7 +78,11 @@ export function ActiveDebate({ debate, onDebateComplete }: ActiveDebateProps) {
           speaker: "ai",
           content: `⚠️ ${data.error}`,
           phase: currentPhase,
-          createdAt: new Date().toISOString(),
+          createdAt: new Date(),
+          strengthScore: null,
+          logicScore: null,
+          persuasivenessScore: null,
+          feedback: null,
         });
         setAiStrategy("");
       } else {
@@ -281,14 +301,7 @@ export function ActiveDebate({ debate, onDebateComplete }: ActiveDebateProps) {
               </div>
             </div>
             {userArguments.length > 0 && userArguments[userArguments.length - 1].feedback && (
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h4 className="font-medium text-blue-900 mb-2">Suggestions for Improvement</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  {((userArguments[userArguments.length - 1].feedback as { suggestions?: string[] })?.suggestions || []).map((suggestion: string, index: number) => (
-                    <li key={index}>• {suggestion}</li>
-                  ))}
-                </ul>
-              </div>
+              <SuggestionsDisplay feedback={userArguments[userArguments.length - 1].feedback} />
             )}
           </CardContent>
         </Card>
